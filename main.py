@@ -73,8 +73,6 @@ async def analyzer(file: UploadFile = File(...)):
         )
 
 
-@app.post("/visualizer")
-async def visualizer(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
