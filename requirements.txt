@@ -6,3 +6,8 @@ python-multipart
 sqlalchemy
 openpyxl
 aiofiles
+plotly
+matplotlib
+seaborn
+kaleido
+pillow
