@@ -14,3 +14,4 @@ pillow
 psutil
 celery
 redis
+statsmodels
