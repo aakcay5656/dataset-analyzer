@@ -95,14 +95,6 @@ We welcome contributions!
 
 
 
-
-
-## 📄 License
-
-MIT License – see [LICENSE](LICENSE)
-
-
-
 ## 📬 Contact
 
 * GitHub Issues
@@ -213,11 +205,6 @@ Katkılarınızı bekliyoruz!
 * 📚 Dokümantasyon → README & örnek ekle
 * 🧪 Test → yeni testler yaz
 
-
-
-## 📄 Lisans
-
-MIT Lisansı – detaylar için [LICENSE](LICENSE) dosyasına bakın
 
 
 ## 📬 İletişim
