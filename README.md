@@ -12,7 +12,7 @@
 It automatically analyzes datasets, generates insights, and creates interactive visualizations.  
 Built with modern Python technologies, it can efficiently process large files with streaming analysis.  
 
----
+
 
 ## ✨ Features
 
@@ -40,7 +40,7 @@ Built with modern Python technologies, it can efficiently process large files wi
 - Dark/Light theme support  
 - Real-time progress tracking  
 
----
+
 
 ## 🚀 Quick Start
 
@@ -130,7 +130,7 @@ MIT License – see [LICENSE](LICENSE)
 Veri setlerini otomatik olarak analiz eder, anlamlı içgörüler üretir ve etkileşimli görselleştirmeler oluşturur.  
 Modern Python teknolojileri ile geliştirilmiştir ve büyük dosyaları **streaming analiz** sayesinde verimli bir şekilde işler.  
 
----
+
 
 ## ✨ Özellikler
 
@@ -158,7 +158,7 @@ Modern Python teknolojileri ile geliştirilmiştir ve büyük dosyaları **strea
 - Koyu/Açık tema desteği  
 - Gerçek zamanlı ilerleme takibi  
 
----
+
 
 ## 🚀 Hızlı Başlangıç
 
@@ -215,13 +215,9 @@ Katkılarınızı bekliyoruz!
 
 
 
-
-
-
 ## 📄 Lisans
 
 MIT Lisansı – detaylar için [LICENSE](LICENSE) dosyasına bakın
-
 
 
 ## 📬 İletişim
