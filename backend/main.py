@@ -15,10 +15,11 @@ import os
 # main.py - import bölümüne ekle
 import numpy as np
 from decimal import Decimal
+import pandas as pd
 
 # JSON serialization helper function ekle
 def convert_numpy_types(obj):
-    """Numpy tiplerini JSON serializable tiplere dönüştür"""
+    """Convert Numpy types to JSON serializable types"""
     if isinstance(obj, dict):
         return {key: convert_numpy_types(value) for key, value in obj.items()}
     elif isinstance(obj, list):
@@ -42,9 +43,9 @@ def convert_numpy_types(obj):
 try:
     from enhanced_charts import AdvancedChartGenerator
     ADVANCED_CHARTS_AVAILABLE = True
-    print("✅ Advanced Charts modülü yüklendi")
+    print("✅ Advanced Charts module installed")
 except ImportError as e:
-    print(f"❌ Advanced Charts modülü yüklenemedi: {e}")
+    print(f"❌ Advanced Charts module failed to load: {e}")
     ADVANCED_CHARTS_AVAILABLE = False
     # Fallback import
     from charts import ChartGenerator
@@ -79,10 +80,10 @@ async def root():
         "supported_formats": ["CSV", "Excel (.xlsx, .xls)", "JSON"],
         "features": ["Data Analysis", "Interactive Charts", "Outlier Detection", "Correlation Analysis"],
         "endpoints": {
-            "analyze": "POST /analyze - Dosya yükle ve analiz et (charts dahil)",
-            "charts/{id}": "GET /charts/{id} - Sadece chart'ları getir",
-            "history": "GET /history - Upload geçmişini görüntüle",
-            "analysis/{id}": "GET /analysis/{id} - Belirli analizi getir"
+            "analyze": "POST /analyze - Upload file and analyze",
+            "charts/{id}": "GET /charts/{id} - Just bring the charts",
+            "history": "GET /history - View upload history",
+            "analysis/{id}": "GET /analysis/{id} - Bring specific analysis"
         }
     }
 
@@ -94,12 +95,12 @@ async def analyze_dataset(
         detailed_charts: bool = Query(False),
         db: Session = Depends(get_db)
 ):
-    """Dataset analizi - düzeltilmiş chart'larla"""
+    """Dataset analysis"""
     start_time = time.time()
     file_path = None
 
     try:
-        print(f"🚀 Analiz başladı: {file.filename}")
+        print(f"🚀 Analysis has started: {file.filename}")
         print(f"📊 Charts: {include_charts}, Detailed: {detailed_charts}")
         print(f"🔧 Advanced Charts Available: {ADVANCED_CHARTS_AVAILABLE}")
 
@@ -115,21 +116,21 @@ async def analyze_dataset(
         if not file_extension:
             raise HTTPException(
                 status_code=400,
-                detail=f"Desteklenmeyen format. İzin verilen: {allowed_extensions}"
+                detail=f"Unsupported format. Allowed: {allowed_extensions}"
             )
 
         # Dosyayı kaydet
         file_path, unique_filename = await file_manager.save_file(file)
         file_size = file_manager.get_file_size(file_path)
 
-        print(f"📁 Dosya kaydedildi: {file_path} ({file_size} bytes)")
+        print(f"📁 File saved: {file_path} ({file_size} bytes)")
 
         # Analizi yap
         analyzer = MultiFormatAnalyzer(file_path, file_extension)
         analyzer.load_data()
         analysis_result = analyzer.analyze()
 
-        print(f"✅ Temel analiz tamamlandı")
+        print(f"✅ Fundamental analysis completed")
         print(f"📊 DataFrame shape: {analyzer.df.shape if analyzer.df is not None else 'None'}")
 
         # Chart'ları oluştur
@@ -138,21 +139,21 @@ async def analyze_dataset(
         chart_mode = "none"
 
         if include_charts and analyzer.df is not None:
-            print(f"🎨 Chart oluşturma başlıyor - Detailed: {detailed_charts}")
+            print(f"🎨 Chart creation begins - Detailed: {detailed_charts}")
 
             try:
-                # Force detailed charts for testing - TEMPORARILY
+
                 if detailed_charts:
                     print(f"🔍 Trying advanced charts - Available: {ADVANCED_CHARTS_AVAILABLE}")
 
                     if ADVANCED_CHARTS_AVAILABLE:
-                        print("🎨 AdvancedChartGenerator çalıştırılıyor...")
+                        print("🎨 AdvancedChartGenerator running...")
 
                         # Import and create advanced charts
                         from enhanced_charts import AdvancedChartGenerator
                         chart_generator = AdvancedChartGenerator(analyzer.df)
 
-                        print("📊 generate_all_charts() çağırılıyor...")
+                        print("📊 generate_all_charts() is being called...")
                         charts = chart_generator.generate_all_charts()
 
                         print(f"🔍 Generated chart keys: {list(charts.keys()) if charts else 'Empty'}")
@@ -211,13 +212,13 @@ async def analyze_dataset(
                 print(f"🎯 Final chart mode: {chart_mode}, count: {chart_count}")
 
             except Exception as chart_error:
-                print(f"❌ Chart oluşturma hatası: {chart_error}")
+                print(f"❌ Chart rendering error: {chart_error}")
                 import traceback
                 print(f"📋 Chart error stack trace: {traceback.format_exc()}")
 
                 # Try basic charts as fallback
                 try:
-                    print("🔄 Fallback: Basic charts deneniyor...")
+                    print("🔄Fallback: Trying basic charts...")
                     chart_generator = ChartGenerator(analyzer.df)
                     charts = chart_generator.generate_all_charts()
                     charts = convert_numpy_types(charts)
@@ -225,7 +226,7 @@ async def analyze_dataset(
                     chart_mode = "basic_fallback"
                     print(f"✅ Fallback successful: {chart_count} basic charts")
                 except Exception as fallback_error:
-                    print(f"❌ Fallback de başarısız: {fallback_error}")
+                    print(f"❌ Fallback de unsuccessful: {fallback_error}")
                     charts = {}
                     chart_count = 0
                     chart_mode = "failed"
@@ -234,7 +235,7 @@ async def analyze_dataset(
             print("⚠️ Charts skipped - include_charts=False or DataFrame is None")
 
         # 🔧 DATABASE SAVE - PROPER INDENTATION
-        print("💾 Veritabanına kaydediliyor...")
+        print("💾 Saving to database...")
 
         try:
             # Analysis results'ı da convert et
@@ -256,22 +257,22 @@ async def analyze_dataset(
             db.commit()
             db.refresh(upload_record)
 
-            print(f"✅ Veritabanına kaydedildi: ID {upload_record.id}")
+            print(f"✅ Saved in the database: ID {upload_record.id}")
 
         except Exception as db_error:
-            print(f"❌ Database kayıt hatası: {db_error}")
+            print(f"❌ Database registration error: {db_error}")
             import traceback
             print(f"📋 DB error stack trace: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"Database kayıt hatası: {str(db_error)}")
+            raise HTTPException(status_code=500, detail=f"Database registration error: {str(db_error)}")
 
         # Dosyayı sil
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
-            print(f"🗑️ Dosya silindi: {file_path}")
+            print(f"🗑️ File deleted: {file_path}")
 
         # Response
         total_duration = time.time() - start_time
-        print(f"🎉 Analiz tamamlandı: {total_duration:.2f}s")
+        print(f"🎉 Analysis completed: {total_duration:.2f}s")
 
         response_data = {
             "success": True,
@@ -316,79 +317,108 @@ async def analyze_dataset(
 async def streaming_analyze_dataset(
         file: UploadFile = File(...),
         chunk_size: int = Query(100000),
-        include_charts: bool = Query(False),  # 🆕 Chart desteği - default False (performance)
-        detailed_charts: bool = Query(False),  # 🆕 Detailed chart desteği
+        include_charts: bool = Query(False),
+        detailed_charts: bool = Query(False),
         db: Session = Depends(get_db)
 ):
-    """Streaming analizi - chart desteği ile"""
+    """Multi-format streaming analysis - with CSV, JSON, Excel support"""
     file_path = None
     start_time = time.time()
 
     try:
-        print(f"🚀 Streaming analiz başladı: {file.filename}")
+        print(f"🚀 Streaming analysis started: {file.filename}")
         print(f"📊 Charts: {include_charts}, Detailed: {detailed_charts}")
         print(f"🔧 Chunk size: {chunk_size:,}")
 
-        if not file.filename.lower().endswith('.csv'):
-            raise HTTPException(status_code=400, detail="Streaming analiz sadece CSV için")
+        # 🆕 MULTI-FORMAT SUPPORT - CSV, JSON, Excel
+        allowed_extensions = ['.csv', '.json', '.xlsx', '.xls']
+        file_extension = None
+
+        for ext in allowed_extensions:
+            if file.filename.lower().endswith(ext):
+                file_extension = ext
+                break
+
+        if not file_extension:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Streaming analysis supported formats: {allowed_extensions}"
+            )
+
+        print(f"📄 File format: {file_extension}")
 
         # Dosyayı kaydet
         file_path, unique_filename = await file_manager.save_file(file)
         file_size = file_manager.get_file_size(file_path)
 
-        print(f"📁 Streaming için dosya kaydedildi: {file_path}")
+        print(f"📁 File saved for streaming: {file_path}")
 
-        # Streaming analiz
-        processor = StreamingProcessor(file_path, chunk_size)
-        analysis_result = processor.stream_analysis()
+        # 🆕 FORMAT-SPECIFIC STREAMING ANALYSIS
+        if file_extension == '.csv':
+            # CSV streaming (original logic)
+            processor = StreamingProcessor(file_path, chunk_size)
+            analysis_result = processor.stream_analysis()
 
-        print(f"✅ Streaming analiz tamamlandı")
+        elif file_extension == '.json':
+            # JSON streaming
+            processor = StreamingProcessor(file_path, chunk_size)
+            analysis_result = processor.stream_json_analysis()
+
+        elif file_extension in ['.xlsx', '.xls']:
+            # Excel streaming
+            processor = StreamingProcessor(file_path, chunk_size)
+            analysis_result = processor.stream_excel_analysis()
+
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported format: {file_extension}")
+
+        print(f"✅ {file_extension} streaming analysis completed")
         print(f"📊 Total rows processed: {analysis_result.get('total_rows', 0):,}")
 
-        # 🆕 Chart'ları oluştur (eğer isteniyorsa)
+        # Chart generation (same logic as before)
         charts = {}
         chart_count = 0
         chart_mode = "none"
 
         if include_charts:
             try:
-                print("🎨 Streaming sonucu için chart'lar oluşturuluyor...")
+                print("🎨 Creating charts for streaming results...")
 
-                # Streaming'den sonra küçük bir sample DataFrame oluştur
-                # Çünkü streaming tüm veriyi memory'de tutmaz
-                import pandas as pd
-
-                # StreamingProcessor'dan sample data al (eğer mümkünse)
+                # Sample data for charts
                 sample_df = None
 
                 try:
-                    # Dosyayı tekrar oku ama sadece sample için (ilk 10K satır)
                     sample_size = min(10000, analysis_result.get('total_rows', 10000))
-                    print(f"📊 Chart için {sample_size:,} satır sample okunuyor...")
+                    print(f"📊 for chart{sample_size:,} reading line sample...")
 
-                    sample_df = pd.read_csv(file_path, nrows=sample_size)
+                    # 🆕 FORMAT-SPECIFIC SAMPLE READING
+                    if file_extension == '.csv':
+                        sample_df = pd.read_csv(file_path, nrows=sample_size)
+                    elif file_extension == '.json':
+                        sample_df = pd.read_json(file_path, lines=True, nrows=sample_size)
+                    elif file_extension in ['.xlsx', '.xls']:
+                        sample_df = pd.read_excel(file_path, nrows=sample_size)
+
                     print(f"✅ Sample DataFrame: {sample_df.shape}")
 
                 except Exception as sample_error:
-                    print(f"❌ Sample DataFrame oluşturulamadı: {sample_error}")
+                    print(f"❌ Sample DataFrame could not be created: {sample_error}")
                     sample_df = None
 
-                # Chart'ları oluştur
+                # Generate charts (same logic as before)
                 if sample_df is not None and not sample_df.empty:
                     if detailed_charts and ADVANCED_CHARTS_AVAILABLE:
-                        print("🎨 Advanced charts (sample data ile)...")
+                        print("🎨 Advanced charts (with sample data)...")
 
                         from enhanced_charts import AdvancedChartGenerator
                         chart_generator = AdvancedChartGenerator(sample_df)
                         charts = chart_generator.generate_all_charts()
 
-                        # Chart format kontrolü
                         if charts and isinstance(charts, dict):
                             first_key = list(charts.keys())[0] if charts else None
                             if first_key and isinstance(charts[first_key], dict):
                                 if 'type' in charts[first_key] and 'charts' in charts[first_key]:
                                     chart_mode = "detailed_sample"
-                                    # Count individual charts
                                     chart_count = sum(
                                         len(v.get('charts', {}))
                                         for v in charts.values()
@@ -399,11 +429,10 @@ async def streaming_analyze_dataset(
                                     chart_mode = "basic_sample"
                                     chart_count = len(charts)
 
-                        # Numpy types convert
                         charts = convert_numpy_types(charts)
 
                     else:
-                        print("📊 Basic charts (sample data ile)...")
+                        print("📊 Basic charts (with sample data)...")
 
                         from charts import ChartGenerator
                         chart_generator = ChartGenerator(sample_df)
@@ -414,10 +443,9 @@ async def streaming_analyze_dataset(
 
                         print(f"✅ Basic charts: {chart_count} charts")
 
-                    # Chart metadata ekle
+                    # Add sample disclaimer
                     if charts:
-                        # Add sample disclaimer to all chart insights
-                        sample_disclaimer = f"📊 Charts based on sample of {len(sample_df):,} rows from {analysis_result.get('total_rows', 0):,} total rows"
+                        sample_disclaimer = f"📊 Charts based on sample of {len(sample_df):,} rows from {analysis_result.get('total_rows', 0):,} total rows ({file_extension} format)"
 
                         for chart_group_name, chart_group in charts.items():
                             if isinstance(chart_group, dict) and 'insights' in chart_group:
@@ -425,10 +453,10 @@ async def streaming_analyze_dataset(
                                     chart_group['insights'].insert(0, sample_disclaimer)
 
                 else:
-                    print("❌ Sample DataFrame boş - charts oluşturulamadı")
+                    print("❌ Sample DataFrame is empty - unable to generate charts")
 
             except Exception as chart_error:
-                print(f"❌ Streaming chart hatası: {chart_error}")
+                print(f"❌ Streaming chart error: {chart_error}")
                 import traceback
                 print(f"📋 Chart error: {traceback.format_exc()}")
                 charts = {}
@@ -436,54 +464,54 @@ async def streaming_analyze_dataset(
                 chart_mode = "failed"
 
         else:
-            print("⚠️ Charts atlandı - include_charts=False")
+            print("⚠️ Charts omitted - include_charts=False")
 
-        # Database'e kaydet - UPDATED
-        print("💾 Streaming sonuçları veritabanına kaydediliyor...")
+        # Database save
+        print("💾 Streaming results are saved in the database...")
 
         try:
-            # Convert analysis result to safe types
             safe_analysis_result = convert_numpy_types(analysis_result)
 
             upload_record = UploadHistory(
                 filename=unique_filename,
                 original_filename=file.filename,
-                file_type='.csv',
+                file_type=file_extension,  # 🆕 Dynamic file type
                 file_size=file_size,
                 rows_count=safe_analysis_result.get('total_rows', 0),
                 columns_count=len(safe_analysis_result.get('column_types', {})),
                 analysis_summary=json.dumps({
                     "method": "streaming",
+                    "format": file_extension,  # 🆕 Store format
                     "performance": safe_analysis_result.get('performance', {}),
                     "chunk_size": chunk_size,
                     "chart_mode": chart_mode,
                     "chart_count": chart_count
                 }),
                 analysis_duration=safe_analysis_result.get('performance', {}).get('analysis_duration', 0),
-                chart_data=json.dumps(charts) if charts else None  # 🆕 Chart data kaydet
+                chart_data=json.dumps(charts) if charts else None
             )
 
             db.add(upload_record)
             db.commit()
             db.refresh(upload_record)
 
-            print(f"✅ Streaming sonuçları kaydedildi: ID {upload_record.id}")
+            print(f"✅ Streaming results recorded: ID {upload_record.id}")
 
         except Exception as db_error:
-            print(f"❌ Database kayıt hatası: {db_error}")
+            print(f"❌ Database registration error: {db_error}")
             import traceback
             print(f"📋 DB error: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"Database kayıt hatası: {str(db_error)}")
+            raise HTTPException(status_code=500, detail=f"Database registration error: {str(db_error)}")
 
-        # Dosyayı sil
+        # Clean up file
         if file_path and os.path.exists(file_path):
             try:
-                os.remove(file_path)  # Direct remove yerine
-                print(f"🗑️ Streaming dosyası silindi: {file_path}")
+                os.remove(file_path)
+                print(f"🗑️ Streaming file deleted: {file_path}")
             except Exception as delete_error:
-                print(f"⚠️ Dosya silme hatası: {delete_error}")
+                print(f"⚠️ File deletion error: {delete_error}")
 
-        # Response - ENHANCED
+        # Enhanced response
         total_duration = time.time() - start_time
 
         response_data = {
@@ -491,24 +519,25 @@ async def streaming_analyze_dataset(
             "method": "streaming",
             "upload_id": upload_record.id,
             "filename": file.filename,
-            "file_type": ".csv",
+            "file_type": file_extension,  # 🆕 Return detected format
+            "format_detected": file_extension,  # 🆕 Explicit format field
             "total_duration": round(total_duration, 3),
             "analysis": safe_analysis_result,
-            "charts": charts,  # 🆕 Charts dahil
-            "chart_mode": chart_mode,  # 🆕 Chart mode
-            "chart_count": chart_count,  # 🆕 Chart count
+            "charts": charts,
+            "chart_mode": chart_mode,
+            "chart_count": chart_count,
             "chunk_size": chunk_size,
             "sample_size": len(
                 sample_df) if include_charts and 'sample_df' in locals() and sample_df is not None else None,
             "file_deleted": True,
-            "advanced_charts_available": ADVANCED_CHARTS_AVAILABLE
+            "advanced_charts_available": ADVANCED_CHARTS_AVAILABLE,
+            "supported_formats": allowed_extensions  # 🆕 Show supported formats
         }
 
-        print(f"🎉 Streaming analiz tamamlandı: {total_duration:.2f}s")
+        print(f"🎉 {file_extension} streaming analysis completed: {total_duration:.2f}s")
         return convert_numpy_types(response_data)
 
     except HTTPException:
-        # HTTP exceptions'ı tekrar raise et
         if file_path and os.path.exists(file_path):
             try:
                 os.remove(file_path)
@@ -517,15 +546,14 @@ async def streaming_analyze_dataset(
         raise
 
     except Exception as e:
-        print(f"❌ Streaming analiz hatası: {str(e)}")
+        print(f"❌ Streaming analysis error: {str(e)}")
         import traceback
         print(f"📋 Stack trace: {traceback.format_exc()}")
 
-        # Hata durumunda da dosyayı sil
         if file_path and os.path.exists(file_path):
             try:
                 os.remove(file_path)
-                print(f"🗑️ Hata sonrası dosya silindi: {file_path}")
+                print(f"🗑️ File deleted after error: {file_path}")
             except:
                 pass
 
@@ -534,7 +562,8 @@ async def streaming_analyze_dataset(
             detail={
                 "error": str(e),
                 "type": type(e).__name__,
-                "method": "streaming"
+                "method": "streaming",
+                "supported_formats": allowed_extensions
             }
         )
 
@@ -545,7 +574,7 @@ async def get_charts(
         chart_type: str = "all",
         db: Session = Depends(get_db)
 ):
-    """Chart'ları getir - geliştirilmiş"""
+    """Bring the charts"""
     try:
         upload = db.query(UploadHistory).filter(UploadHistory.id == upload_id).first()
 
@@ -612,7 +641,7 @@ async def get_detailed_charts(
         chart_type: Optional[str] = None,
         db: Session = Depends(get_db)
 ):
-    """Detaylı chart'ları getir"""
+    """Bring detailed charts"""
     upload = db.query(UploadHistory).filter(UploadHistory.id == upload_id).first()
 
     if not upload or not upload.chart_data:
@@ -650,7 +679,7 @@ async def get_detailed_charts(
 
 @app.get("/charts/types")
 async def get_available_chart_types():
-    """Mevcut chart tiplerini listele"""
+    """List available chart types"""
     return {
         "chart_categories": {
             "dataset_overview": ["column_types", "dataset_shape"],
@@ -678,11 +707,11 @@ async def get_upload_history(limit: int = 10, db: Session = Depends(get_db)):
                 "original_filename": upload.original_filename,
                 "file_type": upload.file_type,
                 "file_size": upload.file_size,
-                "rows": upload.rows_count,  # ✅ rows_count kullan
-                "columns": upload.columns_count,  # ✅ columns_count kullan
+                "rows": upload.rows_count,
+                "columns": upload.columns_count,
                 "uploaded_at": upload.uploaded_at,
                 "analysis_duration": upload.analysis_duration,
-                "has_charts": upload.chart_data is not None  # ✅ chart_data kontrol
+                "has_charts": upload.chart_data is not None
             }
             for upload in uploads
         ]
@@ -694,7 +723,7 @@ async def get_analysis(
         upload_id: int,
         db: Session = Depends(get_db)
 ):
-    """Analiz detaylarını getir - geliştirilmiş"""
+    """Get analysis details"""
     try:
         upload = db.query(UploadHistory).filter(UploadHistory.id == upload_id).first()
 
@@ -734,7 +763,7 @@ async def get_analysis(
 
 @app.get("/system/memory")
 async def get_system_memory():
-    """🖥️ Sistem memory durumu"""
+    """🖥️ System memory status"""
     memory = psutil.virtual_memory()
     disk = psutil.disk_usage('/')
 

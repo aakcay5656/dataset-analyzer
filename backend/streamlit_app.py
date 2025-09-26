@@ -18,15 +18,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Enhanced CSS for better styling
+#  CSS for better styling
 st.markdown("""
 <style>
     .main-header {
         font-size: 3rem;
-        font-weight: bold;
-        background: linear-gradient(90deg, #1f77b4, #ff7f0e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-weight: bold;        
         text-align: center;
         margin-bottom: 1rem;
     }
@@ -129,16 +126,16 @@ def format_file_size(size_bytes):
     return f"{s} {size_names[i]}"
 
 
-# 🆕 Enhanced Chart Display Functions
+# 🆕  Chart Display Functions
 def display_advanced_charts(charts_data: Dict[str, Any]):
-    """Gelişmiş chart'ları görüntüle - ENHANCED"""
+    """View advanced charts"""
     if not charts_data:
         st.info("📊 No charts available")
         return
 
     st.subheader("📊 Advanced Data Visualization Dashboard")
 
-    # Chart kategorileri - UPDATED
+    # Chart categories
     chart_categories = {
         '🗂️ Dataset Overview': [k for k in charts_data.keys() if
                                 not k.startswith('column_') and k not in
@@ -166,21 +163,21 @@ def display_advanced_charts(charts_data: Dict[str, Any]):
 
 
 def display_chart_category(category_name: str, available_charts: List[str], charts_data: Dict[str, Any]):
-    """Chart kategorisini görüntüle"""
+    """View Chart category"""
     if not available_charts:
         st.info(f"No charts available in {category_name}")
         return
 
     if category_name == '📋 Column Analysis':
-        # Column analysis için özel layout
+        # Special layout for column analysis
         display_column_analysis_grid(available_charts, charts_data)
     else:
-        # Diğer kategoriler için standart layout
+        # Standard layout for other categories
         display_standard_chart_category(available_charts, charts_data)
 
 
 def display_column_analysis_grid(available_charts: List[str], charts_data: Dict[str, Any]):
-    """Column analysis için grid layout"""
+    """Grid layout for column analysis"""
 
     # Column selector
     column_names = [k.replace('column_', '') for k in available_charts]
@@ -208,7 +205,7 @@ def display_column_analysis_grid(available_charts: List[str], charts_data: Dict[
 
 
 def display_column_info_detailed(column_name: str, chart_group_data: Dict[str, Any]):
-    """Detaylı sütun bilgilerini göster"""
+    """Show detailed column information"""
 
     st.markdown(f"#### 📊 Column: `{column_name}`")
 
@@ -271,7 +268,7 @@ def display_column_info_detailed(column_name: str, chart_group_data: Dict[str, A
 
 
 def display_column_charts(column_name: str, chart_group_data: Dict[str, Any]):
-    """Sütun chart'larını göster"""
+    """Show bar charts"""
 
     charts = chart_group_data.get('charts', {})
     if not charts:
@@ -440,7 +437,7 @@ def display_standard_chart_category(available_charts: List[str], charts_data: Di
 
 
 def format_chart_name(chart_key: str) -> str:
-    """Chart adını kullanıcı dostu formata çevir"""
+    """Convert chart name to user-friendly format"""
     if chart_key.startswith('column_'):
         column_name = chart_key.replace('column_', '')
         return f"📋 {column_name}"
@@ -456,7 +453,7 @@ def format_chart_name(chart_key: str) -> str:
 
 
 def display_chart_group(chart_group_name: str, chart_group_data: Dict[str, Any]):
-    """Chart grubu görüntüle"""
+    """View chart group"""
     if not isinstance(chart_group_data, dict):
         st.error("Invalid chart group data format")
         return
@@ -493,7 +490,7 @@ def display_chart_group(chart_group_name: str, chart_group_data: Dict[str, Any])
 
 
 def display_chart_info_panel(chart_group_name: str, chart_group_data: Dict[str, Any]):
-    """Enhanced chart bilgi paneli"""
+    """Enhanced chart information panel"""
     with st.container():
         st.markdown("### 📊 Chart Info")
 
@@ -507,7 +504,7 @@ def display_chart_info_panel(chart_group_name: str, chart_group_data: Dict[str, 
             chart_count = len(chart_group_data['charts'])
             st.metric("Available Charts", chart_count)
 
-        # Enhanced column specific info
+        # column specific info
         if chart_group_name.startswith('column_'):
             column_name = chart_group_name.replace('column_', '')
             st.success(f"**Column:** `{column_name}`")
@@ -534,7 +531,7 @@ def display_chart_info_panel(chart_group_name: str, chart_group_data: Dict[str, 
 
 
 def format_stat_value(value):
-    """İstatistik değerini formatla"""
+    """Format statistics value"""
     if isinstance(value, (int, float)):
         if abs(value) >= 1000000:
             return f"{value / 1000000:.1f}M"
@@ -572,7 +569,7 @@ def create_chart_summary_dashboard(charts_data: Dict[str, Any]):
             else:
                 overview_charts += 1
 
-    # Display enhanced metrics
+    # Display  metrics
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -621,7 +618,7 @@ def create_chart_summary_dashboard(charts_data: Dict[str, Any]):
 
 # Rest of the functions remain the same...
 def display_analysis_results_with_advanced_charts(result):
-    """Analiz sonuçlarını gelişmiş chart'larla göster - ENHANCED"""
+    """Show analysis results with advanced charts"""
 
     # Debug info with enhanced toggle
     debug_enabled = st.sidebar.checkbox("🔍 Debug Mode", help="Show technical information")
@@ -688,19 +685,18 @@ def display_analysis_results_with_advanced_charts(result):
             chart_count = result.get('chart_count', 0)
             data_source = result.get('data_source', 'direct')
 
-            # 🔧 FIXED: Enhanced chart mode display with proper emojis
             mode_emoji_and_text = {
                 'detailed': ('🎯', 'Enhanced'),
                 'detailed_sample': ('🎯📊', 'Enhanced Sample'),
-                'detailed_loaded': ('🎯📂', 'Enhanced Loaded'),  # ✅ FIX: detailed_loaded eklendi
+                'detailed_loaded': ('🎯', 'Loaded'),
                 'basic': ('📊', 'Basic'),
                 'basic_sample': ('📊📋', 'Basic Sample'),
-                'basic_loaded': ('📊📂', 'Basic Loaded'),  # ✅ FIX: basic_loaded da eklendi
+                'basic_loaded': ('📊📂', 'Basic Loaded'),
                 'basic_fallback': ('📊⚠️', 'Basic Fallback'),
                 'none': ('❌', 'None'),
                 'failed': ('🚨', 'Failed'),
                 'unknown': ('❓', 'Unknown'),
-                'loaded': ('📂', 'Loaded')  # ✅ FIX: generic loaded
+                'loaded': ('📂', 'Loaded')
             }
 
             emoji, display_text = mode_emoji_and_text.get(chart_mode, ('❓', chart_mode.title()))
@@ -742,7 +738,7 @@ def display_analysis_results_with_advanced_charts(result):
                     for insight in data_quality_insights:
                         st.success(f"🎯 {insight}")
 
-    # Enhanced Charts Section
+    # Charts Section
     if 'charts' in result and result['charts']:
         charts = result['charts']
 
@@ -831,7 +827,7 @@ with st.sidebar:
     analysis_method = st.radio(
         "Analysis Method",
         ["Normal Analysis", "Streaming Analysis"],
-        help="Streaming analysis is recommended for large files (>50MB)"
+        help="Streaming analysis is recommended for large files (>50MB) - Supports CSV, JSON, Excel"
     )
 
     # Enhanced Chart Options
@@ -854,7 +850,7 @@ with st.sidebar:
 
         # Chart performance note for streaming
         if analysis_method == "Streaming Analysis" and include_charts:
-            st.warning("⚠️ Charts for streaming analysis are based on data samples")
+            st.info("📊 Streaming charts are based on data samples • Supports CSV, JSON, Excel formats")
 
     else:
         detailed_charts = False
@@ -887,7 +883,7 @@ with st.sidebar:
         if st.button("🚀 Start Analysis", type="primary", use_container_width=True):
             with st.spinner("🔄 Analyzing your dataset..."):
                 # Determine endpoint and parameters
-                if analysis_method == "Streaming Analysis" and uploaded_file.name.lower().endswith('.csv'):
+                if analysis_method == "Streaming Analysis":
                     endpoint = "/streaming-analyze"
                     params = {
                         "chunk_size": 100000,
@@ -1020,7 +1016,6 @@ with st.sidebar:
 if st.session_state.analysis_results:
     result = st.session_state.analysis_results
 
-    # 🔧 FIXED: Enhanced success message with proper formatting
     filename = result.get('filename', 'Unknown file')
     chart_mode = result.get('chart_mode', 'unknown')
     chart_count = result.get('chart_count', 0)
@@ -1102,7 +1097,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # Enhanced system status
+    # system status
     st.markdown("---")
     st.subheader("🔧 System Status")
 
@@ -1146,7 +1141,7 @@ else:
             else:
                 st.error("❌ Could not fetch memory information")
 
-# Enhanced Footer
+# Footer
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666; padding: 20px; background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px;'>

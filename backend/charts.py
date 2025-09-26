@@ -11,33 +11,33 @@ class ChartGenerator:
         self.df = df
 
     def generate_all_charts(self) -> Dict[str, Any]:
-        """Tüm chart tiplerini oluştur"""
+        """Create all chart types"""
         charts = {}
 
-        # Numeric ve categorical sütunları belirle
+        # Identify numeric and categorical columns
         numeric_cols = self.df.select_dtypes(include=[np.number]).columns.tolist()
         categorical_cols = self.df.select_dtypes(include=['object']).columns.tolist()
 
-        # 1. Histogram (ilk numeric sütun için)
+        # 1.Histogram (for the first numeric column)
         if numeric_cols:
             charts['histogram'] = self.create_histogram(numeric_cols[0])
 
-        # 2. Correlation heatmap (2+ numeric sütun varsa)
+        # 2. Correlation heatmap (If there are 2+ numeric columns)
         if len(numeric_cols) >= 2:
-            charts['correlation'] = self.create_correlation_heatmap(numeric_cols[:5])  # İlk 5 sütun
+            charts['correlation'] = self.create_correlation_heatmap(numeric_cols[:5])  # first 5 columns
 
-        # 3. Box plot (outlier analizi için)
+        # 3. Box plot (for outlier analysis)
         if numeric_cols:
             charts['boxplot'] = self.create_boxplot(numeric_cols[0])
 
-        # 4. Kategorik dağılım (ilk categorical sütun için)
+        # 4. Categorical distribution (for the first categorical column
         if categorical_cols:
             charts['categorical'] = self.create_categorical_chart(categorical_cols[0])
 
         return charts
 
     def create_histogram(self, column: str, bins: int = 30) -> Dict[str, Any]:
-        """Histogram oluştur"""
+        """Create histogram"""
         data = self.df[column].dropna()
 
         # Plotly histogram
@@ -54,16 +54,16 @@ class ChartGenerator:
             showlegend=False
         )
 
-        # İstatistikler
+        # Statistics
         mean_val = data.mean()
         median_val = data.median()
         std_val = data.std()
 
         insights = [
-            f"📊 {len(data):,} veri noktası analiz edildi",
-            f"📈 Ortalama: {mean_val:.2f}",
-            f"📍 Medyan: {median_val:.2f}",
-            f"📏 Standart sapma: {std_val:.2f}"
+            f"📊 {len(data):,} data point analyzed",
+            f"📈 Average: {mean_val:.2f}",
+            f"📍 Median: {median_val:.2f}",
+            f"📏 standard deviation: {std_val:.2f}"
         ]
 
         return {
@@ -80,7 +80,7 @@ class ChartGenerator:
         }
 
     def create_correlation_heatmap(self, columns: List[str]) -> Dict[str, Any]:
-        """Korelasyon heatmap oluştur"""
+        """Create correlation heatmap"""
         corr_matrix = self.df[columns].corr()
 
         # Plotly heatmap
@@ -103,7 +103,7 @@ class ChartGenerator:
             width=500
         )
 
-        # Güçlü korelasyonları bul
+        # Find strong correlations
         strong_correlations = []
         for i in range(len(columns)):
             for j in range(i + 1, len(columns)):
@@ -115,8 +115,8 @@ class ChartGenerator:
                     )
 
         insights = strong_correlations if strong_correlations else [
-            "📊 Güçlü korelasyon bulunamadı (|r| > 0.7)",
-            f"🔢 {len(columns)} değişken arasındaki ilişkiler incelendi"
+            "📊 No strong correlation found (|r| > 0.7)",
+            f"🔢 {len(columns)} Relationships between variables were examined"
         ]
 
         return {
@@ -128,7 +128,7 @@ class ChartGenerator:
         }
 
     def create_boxplot(self, column: str) -> Dict[str, Any]:
-        """Box plot oluştur (outlier analizi)"""
+        """Create a box plot (outlier analysis)"""
         data = self.df[column].dropna()
 
         # Plotly box plot
@@ -146,7 +146,7 @@ class ChartGenerator:
             yaxis_title=column
         )
 
-        # Outlier hesaplama
+        # Outlier calculation
         Q1 = data.quantile(0.25)
         Q3 = data.quantile(0.75)
         IQR = Q3 - Q1
@@ -157,10 +157,10 @@ class ChartGenerator:
         outlier_percentage = (len(outliers) / len(data)) * 100
 
         insights = [
-            f"📊 {len(data):,} veri noktası analiz edildi",
+            f"📊 {len(data):,} data point analyzed",
             f"📦 Q1: {Q1:.2f}, Q3: {Q3:.2f}",
             f"📏 IQR: {IQR:.2f}",
-            f"🚨 {len(outliers)} aykırı değer tespit edildi (%{outlier_percentage:.1f})"
+            f"🚨 {len(outliers)} outlier detected (%{outlier_percentage:.1f})"
         ]
 
         return {
@@ -177,7 +177,7 @@ class ChartGenerator:
         }
 
     def create_categorical_chart(self, column: str) -> Dict[str, Any]:
-        """Kategorik değişken için pie/bar chart"""
+        """Pie/bar chart for categorical variables"""
         value_counts = self.df[column].value_counts().head(10)  # Top 10
 
         if len(value_counts) <= 5:
@@ -206,13 +206,13 @@ class ChartGenerator:
         top_percentage = (value_counts.iloc[0] / total_count) * 100
 
         insights = [
-            f"📊 {len(value_counts)} farklı kategori",
-            f"🏆 En sık: '{top_category}' (%{top_percentage:.1f})",
-            f"🔢 Toplam {total_count:,} veri noktası"
+            f"📊 {len(value_counts)} different category",
+            f"🏆 most common: '{top_category}' (%{top_percentage:.1f})",
+            f"🔢 Toplam {total_count:,} data point"
         ]
 
         if top_percentage > 80:
-            insights.append("⚠️ Tek kategori dominant - dağılım dengesiz")
+            insights.append("⚠️ Single category dominant - distribution unbalanced")
 
         return {
             "type": "categorical",

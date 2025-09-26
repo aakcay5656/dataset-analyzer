@@ -12,39 +12,39 @@ class MultiFormatAnalyzer:
         self.df = None
 
     def load_data(self) -> bool:
-        """Dosya tipine göre veriyi yükle"""
+        """Load data by file type"""
         try:
             if self.file_type == '.csv':
                 self.df = pd.read_csv(self.file_path)
             elif self.file_type in ['.xlsx', '.xls']:
                 self.df = pd.read_excel(self.file_path)
             elif self.file_type == '.json':
-                # JSON'u DataFrame'e çevir
+                # Convert JSON to DataFrame
                 with open(self.file_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
 
-                # JSON formatına göre işle
+                # Process according to JSON format
                 if isinstance(data, list):
                     self.df = pd.DataFrame(data)
                 elif isinstance(data, dict):
-                    # Dict'i DataFrame'e çevir
+                    # Convert Dict to DataFrame
                     if all(isinstance(v, list) for v in data.values()):
                         self.df = pd.DataFrame(data)
                     else:
                         # Single record dict
                         self.df = pd.DataFrame([data])
                 else:
-                    raise ValueError("Desteklenmeyen JSON formatı")
+                    raise ValueError("Unsupported JSON format")
             else:
-                raise ValueError(f"Desteklenmeyen dosya tipi: {self.file_type}")
+                raise ValueError(f"Unsupported file type: {self.file_type}")
 
             return True
 
         except Exception as e:
-            raise Exception(f"Dosya yükleme hatası ({self.file_type}): {str(e)}")
+            raise Exception(f"File upload error ({self.file_type}): {str(e)}")
 
     def analyze(self) -> Dict[str, Any]:
-        """Tam analiz - timing ile"""
+        """Full analysis - with timing"""
         start_time = time.time()
 
         if self.df is None:
@@ -60,14 +60,14 @@ class MultiFormatAnalyzer:
             "insights": self._generate_insights()
         }
 
-        # Analiz süresini ekle
+        # Add analysis time
         analysis_duration = time.time() - start_time
         result["analysis_duration"] = round(analysis_duration, 3)
 
         return result
 
     def _get_file_info(self) -> Dict[str, Any]:
-        """Dosya bilgileri"""
+        """File information"""
         return {
             "file_type": self.file_type,
             "file_path": self.file_path,
@@ -75,7 +75,7 @@ class MultiFormatAnalyzer:
         }
 
     def _get_basic_info(self) -> Dict[str, Any]:
-        """Temel bilgiler"""
+        """Basic information"""
         return {
             "rows": len(self.df),
             "columns": len(self.df.columns),
@@ -84,13 +84,13 @@ class MultiFormatAnalyzer:
         }
 
     def _analyze_columns(self) -> Dict[str, Any]:
-        """Gelişmiş sütun analizi"""
+        """Advanced column analysis"""
         columns_info = {}
 
         for col in self.df.columns:
             col_data = self.df[col]
 
-            # Temel bilgiler
+            # Basic information
             info = {
                 "type": str(col_data.dtype),
                 "non_null_count": int(col_data.count()),
@@ -100,7 +100,7 @@ class MultiFormatAnalyzer:
                 "sample_values": col_data.dropna().head(3).tolist()
             }
 
-            # Numerik sütunlar için ilave bilgiler
+            # Additional information for numeric columns
             if pd.api.types.is_numeric_dtype(col_data):
                 info.update({
                     "min": float(col_data.min()) if not col_data.empty else None,
@@ -110,20 +110,20 @@ class MultiFormatAnalyzer:
                     "std": round(float(col_data.std()), 2) if not col_data.empty else None
                 })
 
-                # Outlier detection (basit)
+                # Outlier detection (basic)
                 Q1 = col_data.quantile(0.25)
                 Q3 = col_data.quantile(0.75)
                 IQR = Q3 - Q1
                 outliers = col_data[(col_data < Q1 - 1.5 * IQR) | (col_data > Q3 + 1.5 * IQR)]
                 info["outlier_count"] = len(outliers)
 
-            # String sütunlar için
+            # For string columns
             elif col_data.dtype == 'object':
-                # En sık değerler
+                # Most frequent values
                 top_values = col_data.value_counts().head(3)
                 info["top_values"] = top_values.to_dict()
 
-                # String uzunluk analizi
+                # String length analysis
                 str_lengths = col_data.astype(str).str.len()
                 info.update({
                     "avg_length": round(str_lengths.mean(), 1),
@@ -136,7 +136,7 @@ class MultiFormatAnalyzer:
         return columns_info
 
     def _analyze_missing_values(self) -> Dict[str, Any]:
-        """Eksik değer analizi"""
+        """Missing value analysis"""
         missing_counts = self.df.isnull().sum()
         total_rows = len(self.df)
 
@@ -157,15 +157,15 @@ class MultiFormatAnalyzer:
         }
 
     def _get_statistics(self) -> Dict[str, Any]:
-        """İstatistiksel özet"""
+        """Statistical summary"""
         numeric_cols = self.df.select_dtypes(include=[np.number]).columns.tolist()
 
         if not numeric_cols:
-            return {"message": "Numerik sütun bulunamadı"}
+            return {"message": "Numeric column not found"}
 
         stats = self.df[numeric_cols].describe()
 
-        # JSON serializable yap
+        # Make JSON serializable
         stats_dict = {}
         for col in numeric_cols:
             stats_dict[col] = {
@@ -182,7 +182,7 @@ class MultiFormatAnalyzer:
         return stats_dict
 
     def _assess_data_quality(self) -> Dict[str, Any]:
-        """Veri kalitesi değerlendirmesi"""
+        """Data quality assessment"""
         total_cells = len(self.df) * len(self.df.columns)
         missing_cells = self.df.isnull().sum().sum()
 
@@ -204,34 +204,34 @@ class MultiFormatAnalyzer:
         }
 
     def _generate_insights(self) -> List[str]:
-        """Gelişmiş insights"""
+        """Advanced insights"""
         insights = []
 
         rows, cols = self.df.shape
 
-        # Veri boyutu
+        # Data size
         if rows > 50000:
-            insights.append(f"📊 Büyük dataset: {rows:,} satır - robust analiz imkanı")
+            insights.append(f"📊 Large dataset: {rows:,} rows - robust analysis opportunity")
         elif rows < 100:
-            insights.append(f"📊 Küçük dataset: {rows} satır - istatistiksel güvenilirlik sınırlı")
+            insights.append(f"📊 Small dataset: {rows} rows - statistical reliability is limited")
         else:
-            insights.append(f"📊 Orta boy dataset: {rows:,} satır - iyi analiz imkanı")
+            insights.append(f"📊 Medium size dataset: {rows:,} rows - good analysis possibilities")
 
-        # Veri kalitesi
+        # Data quality
         quality = self._assess_data_quality()
         if quality["quality_score"] > 90:
-            insights.append("✅ Yüksek kaliteli veri - analiz için ideal")
+            insights.append("✅ High quality data – ideal for analysis")
         elif quality["quality_score"] > 70:
-            insights.append("⚠️ Orta kaliteli veri - temizleme gerekebilir")
+            insights.append("⚠️ Medium quality data - may require cleaning")
         else:
-            insights.append("❌ Düşük kaliteli veri - ciddi temizleme gerekli")
+            insights.append("❌ Low quality data – serious cleaning required")
 
         # Numerik vs kategorik
         numeric_cols = len(self.df.select_dtypes(include=[np.number]).columns)
         if numeric_cols == 0:
-            insights.append("📝 Tamamen kategorik veri - istatistiksel analiz sınırlı")
+            insights.append("📝 Purely categorical data - statistical analysis limited")
         elif numeric_cols > cols / 2:
-            insights.append(f"🔢 Ağırlıklı numerik veri: {numeric_cols}/{cols} sütun")
+            insights.append(f"🔢 Weighted numeric data: {numeric_cols}/{cols} column")
 
         # Outlier insights
         outlier_cols = []
@@ -244,9 +244,9 @@ class MultiFormatAnalyzer:
                 outlier_cols.append(col)
 
         if outlier_cols:
-            insights.append(f"🚨 Aykırı değer tespit edildi: {', '.join(outlier_cols[:3])}")
+            insights.append(f"🚨 Outlier detected: {', '.join(outlier_cols[:3])}")
 
         # File format insight
-        insights.append(f"📄 {self.file_type.upper()} formatında başarıyla analiz edildi")
+        insights.append(f"📄 {self.file_type.upper()} was successfully analyzed in the format")
 
         return insights

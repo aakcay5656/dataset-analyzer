@@ -11,7 +11,7 @@ import re
 
 
 class AdvancedChartGenerator:
-    """Her sütun için detaylı chart oluşturucu"""
+    """Detailed chart builder for each column"""
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
@@ -19,7 +19,7 @@ class AdvancedChartGenerator:
         self.charts = {}
 
     def _analyze_columns(self) -> Dict[str, Dict]:
-        """Her sütunu analiz et ve tipini belirle - IMPROVED"""
+        """Analyze each column and determine its type"""
         analysis = {}
 
         for col in self.df.columns:
@@ -44,16 +44,16 @@ class AdvancedChartGenerator:
         return analysis
 
     def _is_categorical(self, series: pd.Series) -> bool:
-        """Sütunun kategorik olup olmadığını belirle"""
+        """Determine if column is categorical"""
         if series.dtype == 'object':
             unique_ratio = series.nunique() / len(series)
-            return unique_ratio < 0.1  # %10'dan az unique değer varsa kategorik
+            return unique_ratio < 0.1  # If there are less than 10% unique values, it is categorical.
         return False
 
     def _is_text(self, series: pd.Series) -> bool:
-        """Sütunun metin olup olmadığını belirle"""
+        """Determine if column is text"""
         if series.dtype == 'object' and not self._is_categorical(series):
-            # Ortalama string uzunluğu 10'dan fazlaysa metin
+            # Text if average string length is more than 10
             sample = series.dropna().head(100)
             if len(sample) > 0:
                 avg_length = sample.astype(str).str.len().mean()
@@ -61,13 +61,13 @@ class AdvancedChartGenerator:
         return False
 
     def generate_all_charts(self) -> Dict[str, Any]:
-        """Tüm chart'ları oluştur"""
-        print("🎨 Gelişmiş chart oluşturma başladı...")
+        """Create all charts"""
+        print("🎨 Advanced chart creation started...")
 
         # Dataset overview charts
         self.charts['dataset_overview'] = self._create_dataset_overview()
 
-        # Her sütun için detaylı chart'lar
+        # Detailed charts for each column
         for col in self.df.columns:
             col_info = self.column_analysis[col]
             self.charts[f'column_{col}'] = self._create_column_charts(col, col_info)
@@ -77,11 +77,11 @@ class AdvancedChartGenerator:
         self.charts['missing_values_analysis'] = self._create_missing_values_analysis()
         self.charts['data_quality_dashboard'] = self._create_data_quality_dashboard()
 
-        print(f"✅ {len(self.charts)} chart grubu oluşturuldu!")
+        print(f"✅ {len(self.charts)} chart group created!")
         return self.charts
 
     def _create_dataset_overview(self) -> Dict[str, Any]:
-        """Dataset genel bakış chart'ları"""
+        """Dataset overview charts"""
         charts = {}
 
         # 1. Column Types Distribution
@@ -139,10 +139,9 @@ class AdvancedChartGenerator:
 
 
 
-    # enhanced_charts.py - _create_numeric_charts metodunu güncelle
 
     def _create_numeric_charts(self, column: str, data: pd.Series) -> Dict[str, Any]:
-        """Numeric sütun için chart'lar - JSON safe"""
+        """Charts for numeric columns"""
         charts = {}
 
         try:
@@ -160,7 +159,7 @@ class AdvancedChartGenerator:
                 'insights': self._analyze_outliers(data, column)
             }
 
-            # 3. Descriptive Statistics - SAFE CONVERSION
+            # 3. Descriptive Statistics
             stats = data.describe()
 
             # Convert pandas Series to dict with safe types
@@ -190,7 +189,7 @@ class AdvancedChartGenerator:
                 'stats': safe_stats  # Safe stats dict
             }
 
-            # 4. Density Plot - simplified
+            # 4. Density Plot
             try:
                 import plotly.figure_factory as ff
                 fig = ff.create_distplot([data.values], [column], show_hist=False)
@@ -214,7 +213,7 @@ class AdvancedChartGenerator:
             }
 
     def _create_categorical_charts(self, column: str, data: pd.Series) -> Dict[str, Any]:
-        """Categorical sütun için chart'lar"""
+        """Categorical column charts"""
         charts = {}
 
         # Value counts
@@ -268,7 +267,7 @@ class AdvancedChartGenerator:
         return charts
 
     def _create_datetime_charts(self, column: str, data: pd.Series) -> Dict[str, Any]:
-        """DateTime sütun için chart'lar"""
+        """Charts for DateTime column"""
         charts = {}
 
         try:
@@ -320,7 +319,7 @@ class AdvancedChartGenerator:
         return charts
 
     def _create_text_charts(self, column: str, data: pd.Series) -> Dict[str, Any]:
-        """Text sütun için chart'lar"""
+        """Charts for text columns"""
         charts = {}
 
         text_series = data.astype(str)
@@ -345,7 +344,7 @@ class AdvancedChartGenerator:
         }
 
         # 3. Character Analysis
-        all_text = ' '.join(text_series.head(1000))  # Sample for performance
+        all_text = ' '.join(text_series.head(1000))
         char_counts = Counter(all_text.lower())
         common_chars = dict(char_counts.most_common(15))
 
@@ -382,10 +381,10 @@ class AdvancedChartGenerator:
         }
 
     def _create_correlation_analysis(self) -> Dict[str, Any]:
-        """Sütunlar arası korelasyon analizi"""
+        """Inter-column correlation analysis"""
         charts = {}
 
-        # Sadece numeric sütunlar
+        # Numeric columns only
         numeric_cols = [col for col, info in self.column_analysis.items() if info['is_numeric']]
 
         if len(numeric_cols) >= 2:
@@ -432,7 +431,7 @@ class AdvancedChartGenerator:
         }
 
     def _create_missing_values_analysis(self) -> Dict[str, Any]:
-        """Missing values genel analizi"""
+        """Missing values general analysis"""
         missing_data = {}
         for col, info in self.column_analysis.items():
             if info['null_count'] > 0:
@@ -477,7 +476,7 @@ class AdvancedChartGenerator:
         }
 
     def _create_data_quality_dashboard(self) -> Dict[str, Any]:
-        """Data quality özet dashboard"""
+        """Data quality summary dashboard"""
         quality_metrics = {
             'Total Rows': len(self.df),
             'Total Columns': len(self.df.columns),
@@ -519,7 +518,7 @@ class AdvancedChartGenerator:
         }
 
     def _analyze_outliers(self, data: pd.Series, column: str) -> List[str]:
-        """Outlier analizi"""
+        """Outlier analysis"""
         Q1 = data.quantile(0.25)
         Q3 = data.quantile(0.75)
         IQR = Q3 - Q1
@@ -543,7 +542,7 @@ class AdvancedChartGenerator:
         return insights
 
     def _analyze_correlations(self, corr_matrix: pd.DataFrame) -> List[str]:
-        """Korelasyon analizi insights"""
+        """Correlation analysis insights"""
         insights = []
 
         # Strong correlations
@@ -568,7 +567,7 @@ class AdvancedChartGenerator:
         return insights
 
     def get_chart_summary(self) -> Dict[str, Any]:
-        """Chart'ların özeti"""
+        """Summary of charts"""
         total_charts = 0
         chart_types = []
 
@@ -587,7 +586,7 @@ class AdvancedChartGenerator:
 
 
     def _analyze_object_column(self, series: pd.Series) -> Dict[str, Any]:
-        """Object sütunu için detaylı analiz"""
+        """Detailed analysis for the Object column"""
         clean_data = series.dropna()
 
         if len(clean_data) == 0:
@@ -669,7 +668,7 @@ class AdvancedChartGenerator:
             analysis['suggested_type'] = 'url'
         elif analysis['patterns']['code_like']['percentage'] > 50:
             analysis['suggested_type'] = 'identifier'
-        elif len(clean_data.unique()) / len(clean_data) < 0.05:  # %5'ten az unique
+        elif len(clean_data.unique()) / len(clean_data) < 0.05:  # Less than 5% unique
             analysis['suggested_type'] = 'categorical'
         elif analysis['length_stats']['mean'] > 50:
             analysis['suggested_type'] = 'long_text'
@@ -679,7 +678,7 @@ class AdvancedChartGenerator:
         return analysis
 
     def _create_column_charts(self, column: str, col_info: Dict) -> Dict[str, Any]:
-        """Belirli bir sütun için detaylı chart'lar - IMPROVED"""
+        """Detailed charts for a specific column"""
         charts = {}
         insights = []
 
@@ -744,7 +743,7 @@ class AdvancedChartGenerator:
         }
 
     def _create_object_charts(self, column: str, data: pd.Series, col_info: Dict) -> Dict[str, Any]:
-        """Object sütunu için akıllı chart'lar"""
+        """Smart charts for Object column"""
         charts = {}
         object_analysis = col_info.get('object_analysis', {})
         suggested_type = object_analysis.get('suggested_type', 'mixed')

@@ -12,15 +12,15 @@ class FileManager:
 
     async def save_file(self, file: UploadFile) -> Tuple[str, str]:
         """
-        Dosyayı kaydet ve path'leri döndür
+        Save the file and return the paths
         Returns: (file_path, unique_filename)
         """
-        # Benzersiz dosya adı oluştur
+        # Generate unique file name
         file_extension = os.path.splitext(file.filename)[1].lower()
         unique_filename = f"{uuid.uuid4().hex}{file_extension}"
         file_path = os.path.join(self.upload_dir, unique_filename)
 
-        # Dosyayı kaydet
+        # Save file
         async with aiofiles.open(file_path, "wb") as f:
             content = await file.read()
             await f.write(content)
@@ -28,11 +28,11 @@ class FileManager:
         return file_path, unique_filename
 
     def get_file_size(self, file_path: str) -> int:
-        """Dosya boyutunu döndür"""
+        """Rotate file size"""
         return os.path.getsize(file_path) if os.path.exists(file_path) else 0
 
     def delete_file(self, file_path: str) -> bool:
-        """Dosyayı sil"""
+        """delete file"""
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
