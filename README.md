@@ -36,9 +36,7 @@ Built with modern Python technologies, it can efficiently process large files wi
 
 ### 🎨 Modern UI/UX
 - Streamlit-based clean, responsive interface  
-- Dark/Light theme support  
 - Real-time progress tracking  
-
 
 
 ## 🚀 Quick Start
@@ -144,9 +142,7 @@ Modern Python teknolojileri ile geliştirilmiştir ve büyük dosyaları **strea
 
 ### 🎨 Modern UI/UX
 - Streamlit tabanlı modern ve sade arayüz  
-- Koyu/Açık tema desteği  
 - Gerçek zamanlı ilerleme takibi  
-
 
 
 ## 🚀 Hızlı Başlangıç
