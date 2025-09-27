@@ -36,7 +36,6 @@ Built with modern Python technologies, it can efficiently process large files wi
 
 ### 🎨 Modern UI/UX
 - Streamlit-based clean, responsive interface  
-- Works on desktop & mobile  
 - Dark/Light theme support  
 - Real-time progress tracking  
 
@@ -100,7 +99,6 @@ We welcome contributions!
 * GitHub Issues
 * Discussions
 * Email: `aakcay5656@gmail.com`
-* Discord: join our community
 
 ⭐ If you like this project, please **star** the repo!
 
@@ -146,7 +144,6 @@ Modern Python teknolojileri ile geliştirilmiştir ve büyük dosyaları **strea
 
 ### 🎨 Modern UI/UX
 - Streamlit tabanlı modern ve sade arayüz  
-- Mobil & masaüstü uyumlu  
 - Koyu/Açık tema desteği  
 - Gerçek zamanlı ilerleme takibi  
 
@@ -191,7 +188,6 @@ Tarayıcıda aç: [http://localhost:8501](http://localhost:8501)
 **Backend:** FastAPI · SQLAlchemy · Pandas · NumPy · Plotly
 **Frontend:** Streamlit · Plotly.js · Custom CSS
 **Database:** SQLite (varsayılan), PostgreSQL (production)
-**Deployment:** Docker · Docker Compose
 
 
 
@@ -212,6 +208,5 @@ Katkılarınızı bekliyoruz!
 * GitHub Issues
 * Discussions
 * E-posta: `aakcay5656@gmail.com`
-* Discord topluluğu
 
 ⭐ Eğer bu projeyi faydalı bulduysan, lütfen **star** bırak!
