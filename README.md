@@ -4,7 +4,6 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-red.svg)
 ![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
-![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
 **Dataset Analyzer** is a powerful open-source platform for intelligent dataset analysis.
 It automatically analyzes datasets, generates insights, and creates interactive visualizations.
@@ -103,7 +102,7 @@ If you like this project, please **star** the repo!
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-red.svg)
 ![Contributions](https://img.shields.io/badge/katkılar-hoşgeldiniz-brightgreen.svg)
-![License](https://img.shields.io/badge/lisans-MIT-lightgrey.svg)
+
 
 **Dataset Analyzer**, akıllı veri analizi için geliştirilmiş güçlü ve açık kaynaklı bir platformdur.
 Veri setlerini otomatik olarak analiz eder, anlamlı içgörüler üretir ve etkileşimli görselleştirmeler oluşturur.
