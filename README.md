@@ -1,4 +1,4 @@
-# EN
+EN
 
 # 📊 Dataset Analyzer v3.1
 
@@ -103,7 +103,7 @@ We welcome contributions!
 
 ---
 
-# 🇹🇷 
+TR
 
 
 # 📊 Dataset Analyzer v3.1
