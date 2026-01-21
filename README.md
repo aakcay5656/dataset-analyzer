@@ -4,7 +4,7 @@
 
 Data Analyzer is a comprehensive web-based platform designed to automate and simplify the process of exploratory data analysis. The application enables users to upload their datasets and receive instant, detailed insights without requiring any programming knowledge or technical expertise.
 
-**Live Application:** https://data-analyzer-cc0h4psak-aakcay5656s-projects.vercel.app
+**Live Application:** https://data-analyzer-tau.vercel.app/
 
 ---
 
@@ -120,7 +120,7 @@ Whether you are analyzing data for the first time or are an experienced data pro
 **Supported Formats:** CSV, Excel (XLSX, XLS)  
 **Maximum File Size:** 50 MB  
 **Pricing:** Free to use  
-**Access:** https://data-analyzer-cc0h4psak-aakcay5656s-projects.vercel.app
+**Access:** https://data-analyzer-tau.vercel.app/
 
 ---
 ---
@@ -132,7 +132,7 @@ Whether you are analyzing data for the first time or are an experienced data pro
 
 Data Analyzer, keşifsel veri analizi sürecini otomatikleştirmek ve basitleştirmek için tasarlanmış kapsamlı bir web tabanlı platformdur. Uygulama, kullanıcıların herhangi bir programlama bilgisi veya teknik uzmanlık gerektirmeden veri setlerini yüklemelerini ve anında detaylı içgörüler elde etmelerini sağlar.
 
-**Canlı Uygulama:** https://data-analyzer-cc0h4psak-aakcay5656s-projects.vercel.app
+**Canlı Uygulama:** https://data-analyzer-tau.vercel.app/
 
 ---
 
@@ -248,4 +248,4 @@ Data Analyzer'ı kullanmaya başlamak için, uygulama URL'sini ziyaret edin ve v
 **Desteklenen Formatlar:** CSV, Excel (XLSX, XLS)  
 **Maksimum Dosya Boyutu:** 50 MB  
 **Fiyatlandırma:** Ücretsiz kullanım  
-**Erişim:** https://data-analyzer-cc0h4psak-aakcay5656s-projects.vercel.app
+**Erişim:** https://data-analyzer-tau.vercel.app/
